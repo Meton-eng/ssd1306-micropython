@@ -11,7 +11,7 @@ Comments and methods were originally written in Brazil Protuguese. Version in en
 > **Note:** This driver is configured for **128x32** displays. For 128x64 displays, adjust `init_seq` (`0xA8, 0x3F` and `0x22, 0x00, 0x07`) and the framebuffer size (1024 bytes).
 
 ## Utilization examples
->  <image src="examples/Images/Umidity and temp.jpg" width="100">  Example of usage for temperature and umidity meter. ANT10 is necessary.
+<image src="examples/Images/Umidity and temp.jpg" width="100">  Example of usage for temperature and umidity meter. ANT10 is necessary.
 
 <image src="examples/Images/8x8_font_4_lines.jpg" width="100">  4 lines with 8x8 font
 
