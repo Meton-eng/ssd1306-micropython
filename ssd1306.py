@@ -312,9 +312,8 @@ class SSD1306:
                 # itera em cada em cada byte, e avança o deslocamento horizontal
                 for desloc_horiz, byte in enumerate(bitmap):
                     
-                    #itera em cada bit, testa se é 1 e acende o respectivo pixel
+                    #itera em cada bit e acende ou apaga o respectivo pixel
                     for desloc_vert in range(8):
-                      #  if (byte >> desloc_vert) & 1:
                         self.pixel(x + (7 - desloc_horiz), 
                                    y + (7 - desloc_vert), 
                                    ((byte >> desloc_vert) & 1))
