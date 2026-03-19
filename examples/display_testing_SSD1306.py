@@ -227,6 +227,37 @@ font_8x16 = {
     '°': (0x00, 0x18, 0x24, 0x24, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
 } #########  End of 8x16 font
 
+## positional offsets for lazy_spin
+lazy_spin_offsets = {
+     0: (0, 0),
+     1: (1, 0),
+     2: (2, 0),
+     3: (3, 0),
+     4: (4, 0),
+     5: (5, 0),
+     6: (6, 0),
+     
+     7: (6, 1),
+     8: (6, 2),
+     9: (6, 3),
+    10: (6, 4),
+    11: (6, 5),
+    12: (6, 6),
+    
+    13: (5, 6),    
+    14: (4, 6),
+    15: (3, 6),
+    16: (2, 6),
+    17: (1, 6),
+    18: (0, 6),
+    
+    19: (0, 5),
+    20: (0, 4),
+    21: (0, 3),
+    22: (0, 2),
+    23: (0, 1)    
+}
+
 # control byte for data or commands
 command_byte = bytearray([0x00])  # commands
 data_byte    = bytearray([0x40])  # data
@@ -388,7 +419,45 @@ class SSD1306:
             self.dot_2x2(x + 3, y + 5)
             self.dot_2x2(x + 5, y + 1, False)
             return 0
+
+    # keeps 3 blocks spinning within a 8x8 space, uses block characers
+    # usefull to demonstrate system is normal and operating (not freezed)
+    def spin_3_block(self, x, y, seq):
+        if seq == 0:
+            block = UP_BLOCK
+            seq = 1
+        elif seq == 1:
+            block = RIGHT_BLOCK
+            seq = 2
+        else:
+            block = LEFT_BLOCK
+            seq = 0
+        display.text(f'{block}', x, y, 8)
+        return seq     
+
+
+    # keeps 1 dot spinning around a 8x8 space
+    # usefull to demonstrate system is normal and operating (not freezed)
+    def lazy_spin(self, x, y, seq):
+        if seq == 0:
+            previous = 23
+            following = seq + 1
+        elif seq == 23:
+            previous = seq - 1
+            following = 0
+        else:
+            previous = seq - 1
+            following = seq + 1
             
+        offset_x, offset_y = lazy_spin_offsets[previous]
+        self.dot_2x2(x + offset_x, y + offset_y, False)
+        
+        offset_x, offset_y = lazy_spin_offsets[seq]
+        self.dot_2x2(x + offset_x, y + offset_y)
+        
+        return following
+
+        
 ####### END of CLASS ########
 
 ## Declarations and initializations 
@@ -458,90 +527,10 @@ display.flash(2, 200, 50)
 
 
 
-def spin_3_block(x, y, seq):
-    if seq == 0:
-        block = UP_BLOCK
-        seq = 1
-    elif seq == 1:
-        block = RIGHT_BLOCK
-        seq = 2
-    else:
-        block = LEFT_BLOCK
-        seq = 0
-    display.text(f'{block}', x, y, 8)
-    return seq
 
-spin_dot_2x2 = {
-     0: (0, 0),
-     1: (1, 0),
-     2: (2, 0),
-     3: (3, 0),
-     4: (4, 0),
-     5: (5, 0),
-     6: (6, 0),
-     
-     7: (6, 1),
-     8: (6, 2),
-     9: (6, 3),
-    10: (6, 4),
-    11: (6, 5),
-    12: (6, 6),
-    
-    13: (5, 6),    
-    14: (4, 6),
-    15: (3, 6),
-    16: (2, 6),
-    17: (1, 6),
-    18: (0, 6),
-    
-    19: (0, 5),
-    20: (0, 4),
-    21: (0, 3),
-    22: (0, 2),
-    23: (0, 1)    
-}
 
-def spin_2x2(x, y, seq):
-    if seq == 0:
-        anterior = 23
-        proximo = seq + 1
-    elif seq == 23:
-        anterior = seq - 1
-        proximo = 0
-    else:
-        anterior = seq - 1
-        proximo = seq + 1
-        
-    offset_x, offset_y = spin_dot_2x2[anterior]
-    self.dot_2x2(x + offset_x, y + offset_y, False)
-    
-    offset_x, offset_y = spin_dot_2x2[seq]
-    self.dot_2x2(x + offset_x, y + offset_y)
-    
-    return proximo
 
-spin_4x4_offset = {
-     0: (0, 0),
-     1: (1, 0),
-     2: (2, 0),
-     3: (3, 0),
-     4: (4, 0),
-     
-     5: (4, 1),
-     6: (4, 2),
-     7: (4, 3),
-     8: (4, 4),
-     
-     9: (3, 4),
-    10: (2, 4),
-    11: (1, 4),
-    12: (0, 4),
-    
-    13: (0, 3),    
-    14: (0, 2),
-    15: (0, 1),
-}
-  
+
     
 a = 0
 b = 0
@@ -549,17 +538,18 @@ c = 0
 d = 0
 
 while True:
-    display.text('  Spin_4', 0, 0, 8)
+    display.text('Spin_4', 0, 0, 8)
     a = display.spin_4(100, 0, a)
 
-    display.text('  Spin_3', 0, 8, 8)
+    display.text('Spin_3', 0, 8, 8)
     b = display.spin_3(100, 8, b)
     
     display.text('Spin_3_block', 0, 16, 8)
-    c = spin_3_block(100, 16, c)
+    c = display.spin_3_block(100, 16, c)
     
+    display.text('Lazy_spin', 0, 24, 8)
+    d = display.lazy_spin(100, 24, d)
     
-    # d = spin_2x2(100, 8, d)
     display.show()
     sleep_ms(500)
 
