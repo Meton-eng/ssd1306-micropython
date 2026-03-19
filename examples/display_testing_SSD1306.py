@@ -297,11 +297,18 @@ class SSD1306:
         3: (3, 5)
     }
     
+    SPIN_3_OFFSETS = {
+        0: (1, 1),
+        1: (5, 1),
+        2: (3, 5)
+    }
+    
+    
     ## start the class and initiate the display
     def __init__(self, bus, addr = 0x3C):
         self.bus = bus
         self.addr = addr
-        bus.writeto(addr, INIT_SEQ)
+        bus.writeto(addr, self.INIT_SEQ)
         self.clean()
 
     def __repr__(self):
@@ -314,11 +321,11 @@ class SSD1306:
     
     ### show the frame buffer content in the display
     def show(self):
-        self.bus.writeto(self.addr, DATA_BYTE + self.framebuffer)
+        self.bus.writeto(self.addr, self.DATA_BYTE + self.framebuffer)
         self.send_command(bytearray([0xA4]) )
 
     def send_command(self, command):
-        self.bus.writeto(self.addr, COMMAND_BYTE + command)
+        self.bus.writeto(self.addr, self.COMMAND_BYTE + command)
     
     ## flashes the display for <n> times, <on> is the time the screen is on, <off> is the blank period 
     ## durationtempo acesa, off tempo apagada
@@ -350,7 +357,7 @@ class SSD1306:
         # iterates on each character within the string and fetch the 8 bytes in the font dictionary
         for character in str_text:
             if size == 16:
-                bitmap = FONT_8x16.get(character, FONT_8x16[' '])
+                bitmap = self.FONT_8x16.get(character, self.FONT_8x16[' '])
                 
                 for horiz_offset in range(8):
                     # upper page — bytes 0-7 -> y+8 até y+15
@@ -370,7 +377,7 @@ class SSD1306:
                 x += 9  # (8px + 1) shift to start of next character
                 
             else:
-                bitmap = FONT_8x8.get(character, FONT_8x8[' '])
+                bitmap = self.FONT_8x8.get(character, self.FONT_8x8[' '])
                 
                 # iterates in each byte, and shifts the horizontal offset
                 for horiz_offset, byte in enumerate(bitmap):
@@ -414,17 +421,10 @@ class SSD1306:
     # keeps 3 dots spinning within a 8x8 space
     # usefull to demonstrate system is normal and operating (not freezed)
     
-    SPIN_3_OFFSETS = {
-        0: (1, 1),
-        1: (5, 1),
-        2: (3, 5)
-    }
+
     def spin_3(self, x, y, seq):
-        previous  = seq - 1
-        following = seq + 1
-        if seq == 0:
-           previous = 2
-        following = 0 if seq == 2
+        previous  = seq - 1 if seq > 0 else 2
+        following = seq + 1 if seq < 2 else 0
             
         x_offset, y_offset = self.SPIN_4_OFFSETS[previous]
         self.dot_2x2(x + x_offset, y + y_offset, False)# erase previous dot
@@ -438,13 +438,13 @@ class SSD1306:
     # usefull to demonstrate system is normal and operating (not freezed)
     def spin_3_block(self, x, y, seq):
         if seq == 0:
-            block = UP_BLOCK
+            block = self.UP_BLOCK
             seq = 1
         elif seq == 1:
-            block = RIGHT_BLOCK
+            block = self.RIGHT_BLOCK
             seq = 2
         else:
-            block = LEFT_BLOCK
+            block = self.LEFT_BLOCK
             seq = 0
         self.text(f'{block}', x, y, 8)
         return seq     
