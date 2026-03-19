@@ -343,6 +343,33 @@ class SSD1306:
                 # shift to the next character
                 x += 8 
 
+    # prints or clean a 2x2 dot, used by other methods
+    def dot_2x2(self, x, y, state = True):
+        display.pixel(x    , y, state)
+        display.pixel(x + 1, y, state)
+        display.pixel(x    , y + 1, state)
+        display.pixel(x + 1, y + 1, state)
+
+    # keeps 4 dots spinning within a 8x8 space
+    # usefull to demonstrate system is normal and operating (not freezed)
+    def spin_4(self, x, y, seq):
+        if   seq == 0:                  # check current dot sequence
+            self.dot_2x2(x + 1, y + 3)       # prints current dot
+            self.dot_2x2(x + 3, y + 5, False)# erase previous dot
+            return 1                    # returns next dot sequence
+        elif seq == 1:
+            self.dot_2x2(x + 3, y + 1)
+            self.dot_2x2(x + 1, y + 3, False)
+            return 2
+        elif seq == 2:
+            self.dot_2x2(x + 5, y + 3)
+            self.dot_2x2(x + 3, y + 1, False)
+            return 3
+        else:
+            self.dot_2x2(x + 3, y + 5)
+            self.dot_2x2(x + 5, y + 3, False)
+            return 0
+            
 ####### END of CLASS ########
 
 ## Declarations and initializations 
@@ -406,36 +433,16 @@ display.flash(2, 200, 50)
 
 
 
-def dot_2x2(x, y, acende = True):
-    display.pixel(x    , y, acende)
-    display.pixel(x + 1, y, acende)
-    display.pixel(x    , y + 1, acende)
-    display.pixel(x + 1, y + 1, acende)
 
-def spin_4(x, y, contador):
-    if   contador == 0:
-        dot_2x2(x + 1, y + 3)
-        dot_2x2(x + 3, y + 5, False)
-        return 1
-    elif contador == 1:
-        dot_2x2(x + 3, y + 1)
-        dot_2x2(x + 1, y + 3, False)
-        return 2
-    elif contador == 2:
-        dot_2x2(x + 5, y + 3)
-        dot_2x2(x + 3, y + 1, False)
-        return 3
-    else:
-        dot_2x2(x + 3, y + 5)
-        dot_2x2(x + 5, y + 3, False)
-        return 0
 
-def spin_3(x, y, contador):
-    if   contador == 0:
+
+
+def spin_3(x, y, seq):
+    if   seq == 0:
         dot_2x2(x + 1, y + 1)
         dot_2x2(x + 3, y + 5, False)
-        return contador + 1
-    elif contador == 1:
+        return seq + 1
+    elif seq == 1:
         dot_2x2(x + 5, y + 1)
         dot_2x2(x + 1, y + 1, False)
         return 2
@@ -444,18 +451,18 @@ def spin_3(x, y, contador):
         dot_2x2(x + 5, y + 1, False)
         return 0
 
-def spin_3_block(x, y, contador):
-    if contador == 0:
+def spin_3_block(x, y, seq):
+    if seq == 0:
         block = UP_BLOCK
-        contador = 1
-    elif contador == 1:
+        seq = 1
+    elif seq == 1:
         block = RIGHT_BLOCK
-        contador = 2
+        seq = 2
     else:
         block = LEFT_BLOCK
-        contador = 0
+        seq = 0
     display.text(f'{block}', x, y, 8)
-    return contador
+    return seq
 
 spin_dot_2x2 = {
      0: (0, 0),
@@ -487,21 +494,21 @@ spin_dot_2x2 = {
     23: (0, 1)    
 }
 
-def spin_2x2(x, y, contador):
-    if contador == 0:
+def spin_2x2(x, y, seq):
+    if seq == 0:
         anterior = 23
-        proximo = contador + 1
-    elif contador == 23:
-        anterior = contador - 1
+        proximo = seq + 1
+    elif seq == 23:
+        anterior = seq - 1
         proximo = 0
     else:
-        anterior = contador - 1
-        proximo = contador + 1
+        anterior = seq - 1
+        proximo = seq + 1
         
     offset_x, offset_y = spin_dot_2x2[anterior]
     dot_2x2(x + offset_x, y + offset_y, False)
     
-    offset_x, offset_y = spin_dot_2x2[contador]
+    offset_x, offset_y = spin_dot_2x2[seq]
     dot_2x2(x + offset_x, y + offset_y)
     
     return proximo
@@ -528,20 +535,20 @@ spin_4x4_offset = {
     15: (0, 1),
 }
 
-def spin_4x4(x, y, contador):
-    if contador == 0:   # bloco anterior é o 15
-        proximo = contador + 1
-    elif contador == 15: # proximo bloco é o 0
+def spin_4x4(x, y, seq):
+    if seq == 0:   # bloco anterior é o 15
+        proximo = seq + 1
+    elif seq == 15: # proximo bloco é o 0
         proximo = 0
     else:
-        proximo = contador + 1
-    #acende o bloco atual
-    offset_x, offset_y = spin_4x4_offset[contador]
+        proximo = seq + 1
+    #state o bloco atual
+    offset_x, offset_y = spin_4x4_offset[seq]
     display.text(f'{LEFT_BLOCK}' , x + offset_x, y + offset_y)
     
     return proximo
     
-display.text(f'{LEFT_BLOCK}' , 0, 16)    
+    
 a = 0
 b = 0
 c = 0
@@ -549,7 +556,7 @@ d = 0
 e = 0
 while True:
     display.text('Spin_4', 0, 16, 8)
-    a = spin_4(100, 16, a)
+    a = display.spin_4(100, 16, a)
     # b = spin_3(100, 0, b)
     # c = spin_3_block(100, 24, c)
     # d = spin_2x2(100, 8, d)
