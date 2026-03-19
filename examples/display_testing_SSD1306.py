@@ -1,21 +1,22 @@
-####################
-## Simple script to test the functionalities of the SSD1306 Driver. 
-####################
+######################################################################
+#
+# Simple scripts to test the functionalities of the SSD1306 Driver. 
+#
+######################################################################
 
 from machine import Pin, SoftI2C, RTC
 from sensores import AHT10
 from time import sleep
 
-### Start of class definition
+### Start of class definition#################################################################
 from time import sleep_ms
 
-STAR_DOT   =  '\x01'
-CORNER_DOT =  '\x02'
-UP_ARROW   =  '\x03'
-DOWN_ARROW =  '\x04'
-UP_BLOCK   =  '\x05'
-LEFT_BLOCK =  '\x06'
-RIGHT_BLOCK=  '\x07'
+# Characters from '\x01' to '\x09' can be used for non ASCII symbols
+UP_ARROW   =  '\x01'
+DOWN_ARROW =  '\x02'
+UP_BLOCK   =  '\x03'
+LEFT_BLOCK =  '\x04'
+RIGHT_BLOCK=  '\x05'
 
 # font 8x8 bitmap 
 font_8x8 = {
@@ -117,8 +118,6 @@ font_8x8 = {
     '~': (0x00, 0x01, 0x03, 0x02, 0x03, 0x01, 0x03, 0x02),
     '\x7f': (0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
     '°': (0x00, 0x00, 0x00, 0x00, 0x06, 0x09, 0x09, 0x06),
-    STAR_DOT: (0x00, 24, 24, 102, 102, 24, 24, 0x00),
-    CORNER_DOT:(0x00, 108, 108, 0, 0, 108, 108, 0x00),
     UP_ARROW: (24 ,12 ,6 ,255 ,255 ,6 ,12 ,24),
     DOWN_ARROW: (24, 48, 96, 255, 255, 96, 48, 24),
     UP_BLOCK: (0, 0, 15, 15, 15, 15, 0, 0),
@@ -126,6 +125,7 @@ font_8x8 = {
     RIGHT_BLOCK: (0, 0, 0, 0, 240, 240, 240, 240)
 } ############# End of 8x8 font
 
+# font 8x16 bitmap
 font_8x16 = {
     '\x00': (0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
     ' ': (0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
@@ -225,7 +225,7 @@ font_8x16 = {
     '~': (0x08, 0x0c, 0x04, 0x0c, 0x08, 0x0c, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
     '\x7f': (0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
     '°': (0x00, 0x18, 0x24, 0x24, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
-} #########  End of 8x 16 font
+} #########  End of 8x16 font
 
 # control byte for data or commands
 command_byte = bytearray([0x00])  # commands
@@ -345,61 +345,65 @@ class SSD1306:
 
 ####### END of CLASS ########
 
-## ESP32 pin-up for I2C 
-sda = Pin(21)
-scl = Pin(22)
+## Declarations and initializations 
 
-## declare and initialize the ESP32 I2C bus
+sda = Pin(21)                         ## ESP32 pin-up for I2C 
+scl = Pin(22)                         ## ESP32 pin-up for I2C 
 i2c_esp32 = SoftI2C( scl = scl,
-                   sda = sda,
-                   freq=400_000)
-                   
-## declare and initialize the display
-display = SSD1306(i2c_esp32)
+                     sda = sda,
+                     freq=400_000)    ## declare and initialize the ESP32 I2C bus                   
+display = SSD1306(i2c_esp32)          ## declare and initialize the display
+
+time_inter_tests = 1
+## Tests #################################################
+
 
 ## test the flash method, 2 flashes, 200ms on and 50ms off
 display.flash(2, 200, 50)
 
-# sleep_ms(100)
+
+
+# ## test to show the 4 lines with 8x8 font
 # display.clean()
-# for a in range(10):
-#     display.text( {STAR_DOT}, 0, 24, 8)
-#     display.show()
-#     sleep_ms(400)
-#     display.text( {CORNER_DOT}, 0, 24, 8)
-#     display.show()
-#     sleep_ms(400)
-    
-# ## test to show the 4 lines in the display
-display.clean()
-display.text(f'3 spin blocks', 0, 24, 8)
-display.text(f'  UP_ARROW {UP_ARROW}', 0, 16, 2)
-display.text(f'DOWN_ARROW {DOWN_ARROW}', 0, 0, 8)
-# display.text('Nao choraxxxx', 0, 0, 16)
-display.show()
-# 
-# 
+# display.text(f'{UP_ARROW}   Top line   {UP_ARROW}', 0, 24, 8)
+# display.text(f'|--- Line 2 ---|', 0, 16, 8)
+# display.text(f'|--- Line 3 ---|', 0, 8, 8)
+# display.text(f'{DOWN_ARROW} Bottom  line {DOWN_ARROW}', 0, 0, 8)
+# display.show()
+# sleep(time_inter_tests)
+
+
+ 
+ 
+ 
 # ### Vertical scroll test using the display built in scroll functionality
-# for a in range(127):
-#     display.send_command(bytearray([0xD3, a]))
-#     sleep_ms(150)
-#     display.show()
+# for a in range(63):
+    # display.send_command(bytearray([0xD3, a]))
+    # sleep_ms(100) # define scroll speed
+# display.show()
 # display.send_command(bytearray([0xD3, 0]))
-# 
-# sleep_ms(1000)
-# 
+# sleep(time_inter_tests)
+
+
+
+
+ 
 # ## Horizontal scroll test using the display built in scroll functionality
 # display.send_command(bytearray([
-#     0x2E,        # desativa scroll (obrigatório antes de configurar)
-#     0x26,        # scroll horizontal para direita
-#     0x00,        # dummy byte
-#     0x00,        # página inicial (0)
-#     0x00,        # velocidade (0x00=5 frames, mais rápido, de 0x00 ate 0x07)
-#     0x03,        # página final (3 = última página do 128x32)
-#     0x00,        # dummy byte
-#     0xFF,        # dummy byte
-#     0x2F,        # ativa scroll
+    # 0x2E,        # deactivate scroll (mandatory before the configuration)
+    # 0x26,        #  horizontal scroll to right
+    # 0x00,        # dummy byte
+    # 0x00,        # start page (0)
+    # 0x00,        # speed (0x00=5 frames, faster, from 0x00 to 0x07)
+    # 0x03,        # final page (3 = last page for 128x32 display)
+    # 0x00,        # dummy byte
+    # 0xFF,        # dummy byte
+    # 0x2F,        # activate scroll
 # ]))
+# sleep(time_inter_tests + 5)
+# display.send_command(bytearray([0x2E]))
+# display.clean()
+
 
 
 def dot_2x2(x, y, acende = True):
@@ -537,39 +541,41 @@ def spin_4x4(x, y, contador):
     
     return proximo
     
-# display.text(f'{LEFT_BLOCK}' , 0, 16)    
-# a = 0
-# b = 0
-# c = 0
-# d = 0
-# e = 0
-# while True:
-    # a = spin_4(100, 16, a)
+display.text(f'{LEFT_BLOCK}' , 0, 16)    
+a = 0
+b = 0
+c = 0
+d = 0
+e = 0
+while True:
+    display.text('Spin_4', 0, 16, 8)
+    a = spin_4(100, 16, a)
     # b = spin_3(100, 0, b)
     # c = spin_3_block(100, 24, c)
     # d = spin_2x2(100, 8, d)
     # e = spin_4x4(0, 8, e)
-    # display.show()
-    # sleep_ms(500)
+    display.show()
+    sleep_ms(500)
     
-    ## iniciar o sensor
-sensor = AHT10(i2c_esp32)
-OFFSET_TEMP = -4
+##################################################################################    
+# #### medidor de temperatura e umidade
+# sensor = AHT10(i2c_esp32)
+# OFFSET_TEMP = -4
 
 
-display.clean()
-## obtem e imprime a temperatura e umidade atual
-rtc = RTC()
+# display.clean()
+# ## obtem e imprime a temperatura e umidade atual
+# rtc = RTC()
 
-while True:
-    for a in range(3):
-        temp, umidade = sensor.valores()
-        agora=rtc.datetime()
-        display.text(f'{agora[4]:02d}:{agora[5]:02d}', 0, 24, 8)
-        display.text(f'{agora[2]:02d}.{agora[1]:02d}.{agora[0]}', 48,24,8)
+# while True:
+    # for a in range(3):
+        # temp, umidade = sensor.valores()
+        # agora=rtc.datetime()
+        # display.text(f'{agora[4]:02d}:{agora[5]:02d}', 0, 24, 8)
+        # display.text(f'{agora[2]:02d}.{agora[1]:02d}.{agora[0]}', 48,24,8)
         
-        display.text(f'Umidity {umidade:.0f}%', 0, 16,  8)
-        display.text(f'Temp. {temp + OFFSET_TEMP:+.1f}°C',    0,  0, 16)
-        display.show()    
-        sleep(5)
+        # display.text(f'Umidity {umidade:.0f}%', 0, 16,  8)
+        # display.text(f'Temp. {temp + OFFSET_TEMP:+.1f}°C',    0,  0, 16)
+        # display.show()    
+        # sleep(5)
        
