@@ -331,7 +331,7 @@ class SSD1306:
     ## <on> is the duration the display is all on, 
     ## <off> is the blank period duration
     def flash(self, n = 3, on = 300, off = 100):
-        for b in range(n):
+        for _ in range(n):
                 self.framebuffer = ( (bytearray([0xFF] * 512) ) )
                 self.show()
                 sleep_ms(on)
@@ -401,7 +401,6 @@ class SSD1306:
         self.pixel(x + 1, y + 1, state)
 
 
-
     # keeps 4 dots spinning within a 8x8 space
     # useful to demonstrate system is normal and operating (not freezed)
     def spin_4(self, x, y, seq):
@@ -415,10 +414,9 @@ class SSD1306:
         self.dot_2x2(x + x_offset, y + y_offset)       # prints current dot
         return following                               # returns next dot sequence
         
+        
     # keeps 3 dots spinning within a 8x8 space
     # useful to demonstrate system is normal and operating (not freezed)
-    
-
     def spin_3(self, x, y, seq):
         previous  = seq - 1 if seq > 0 else 2
         following = seq + 1 if seq < 2 else 0
@@ -434,17 +432,17 @@ class SSD1306:
     # keeps 3 blocks spinning within a 8x8 space, uses block characers
     # useful to demonstrate system is normal and operating (not freezed)
     def spin_3_block(self, x, y, seq):
+        following = seq + 1 if seq < 2 else 0
+        
         if seq == 0:
             block = self.UP_BLOCK
-            seq = 1
         elif seq == 1:
             block = self.RIGHT_BLOCK
-            seq = 2
         else:
             block = self.LEFT_BLOCK
-            seq = 0
-        self.text(f'{block}', x, y, 8)
-        return seq     
+
+        self.text(block, x, y, 8)
+        return following
 
 
     # keeps 1 dot spinning around a 8x8 space
